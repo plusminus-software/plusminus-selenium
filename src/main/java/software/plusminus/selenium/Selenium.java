@@ -56,6 +56,7 @@ public class Selenium {
     }
     
     public void openHeadlessBrowser() {
+        WebDriverManager.chromedriver().setup();
         ChromeOptions chromeOptions = new ChromeOptions();
         chromeOptions.addArguments("--headless", "--disable-gpu", "--window-size=1920,1200",
                 "--ignore-certificate-errors", "--silent");
