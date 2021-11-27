@@ -29,6 +29,7 @@ public class WebTestOptions {
 
     private int timeoutInSeconds = 5;
     private boolean reloadPageOnEachTest;
+    private boolean headlessBrowser = true;
     private boolean hideBrowser;
     private Runnable beforePageLoads = () -> { };
     private Runnable afterPageLoads = () -> { };

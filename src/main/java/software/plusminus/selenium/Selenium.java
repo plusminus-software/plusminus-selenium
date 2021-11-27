@@ -67,14 +67,14 @@ public class Selenium {
         driver.quit();
     }
 
-    public WebDriver getDriver() {
+    public WebDriver driver() {
         return driver;
     }
 
     @SuppressWarnings("HiddenField")
     public void loadPage(WebTestOptions options, String pathOrUrl) {
         this.options = options;
-        String url = getUrl(pathOrUrl); 
+        String url = buildUrl(pathOrUrl); 
         if (driver.getCurrentUrl().equals(url) && !options.reloadPageOnEachTest()) {
             return;
         }
@@ -93,7 +93,7 @@ public class Selenium {
     }
 
     public List<Element> findAll(SearchContext context, By by, Range size, Visibility visibility) {
-        waitForPage(driver);
+        waitForPage();
         waitForElement(context, by, size, visibility);
         waitForElement(context, by, size, visibility);
         List<WebElement> elements = filterElementsByVisibility(
@@ -136,13 +136,21 @@ public class Selenium {
         }
     }
 
-    protected void desktopWindow() {
+    public String buildUrl(String path) {
+        if (path.contains("://")) {
+            return path;
+        }
+        return String.format("%s://%s:%s%s",
+                options.protocol(), options.host(), options.port(), path);
+    }
+
+    public void desktopWindow() {
         WebDriver.Window window = driver.manage().window();
         Dimension dimension = window.getSize();
         window.setSize(new Dimension(dimension.getHeight() * 16 / 9, dimension.getHeight()));
     }
 
-    protected void mobileWindow() {
+    public void mobileWindow() {
         WebDriver.Window window = driver.manage().window();
         Dimension dimension = window.getSize();
         int height = dimension.getHeight();
@@ -153,19 +161,19 @@ public class Selenium {
         window.setSize(new Dimension(width, height));
     }
 
-    protected void hideBrowser() {
+    public void hideBrowser() {
         driver.manage().window().setPosition(new Point(-2000, 0));
     }
 
-    protected void waitForPage(WebDriver webDriver) {
-        new WebDriverWait(webDriver, options.timeoutInSeconds())
+    public void waitForPage() {
+        new WebDriverWait(driver, options.timeoutInSeconds())
                 .until((ExpectedCondition<Boolean>) wd ->
                         ((JavascriptExecutor) wd)
                                 .executeScript("return document.readyState")
                                 .equals("complete"));
     }
 
-    protected void waitForElement(SearchContext context, By by, Range size, Visibility visibility) {
+    public void waitForElement(SearchContext context, By by, Range size, Visibility visibility) {
         try {
             new WebDriverWait(driver, options.timeoutInSeconds()).until(d -> {
                 List<WebElement> elements = context.findElements(by);
@@ -204,14 +212,6 @@ public class Selenium {
                 all,
                 displayed,
                 hidden);
-    }
-
-    private String getUrl(String pathOrUrl) {
-        if (pathOrUrl.contains("://")) {
-            return pathOrUrl;
-        }
-        return String.format("%s://%s:%s%s",
-                options.protocol(), options.host(), options.port(), pathOrUrl);
     }
     
 }

@@ -34,7 +34,7 @@ public class Finder {
 
     public Finder(Selenium selenium) {
         this.selenium = selenium;
-        this.context = selenium.getDriver();
+        this.context = selenium.driver();
     }
 
     public List<Element> all(int size) {
