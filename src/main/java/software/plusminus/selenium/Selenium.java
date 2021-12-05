@@ -193,7 +193,7 @@ public class Selenium {
         if (visibility == Visibility.DISPLAYED) {
             return element.isDisplayed();
         } else if (visibility == Visibility.HIDDEN) {
-            return element.isDisplayed();
+            return !element.isDisplayed();
         } else {
             return true;
         }

@@ -61,9 +61,9 @@ public interface Findable {
     default List<WebElement> findAll(By by, int size, Visibility visibility) {
         Finder finder = find().by(by);
         if (visibility == Visibility.ALL) {
-            finder.includingHidden();
+            finder.includeHidden();
         } else if (visibility == Visibility.HIDDEN) {
-            finder.onlyHidden();
+            finder.hidden();
         }
         return finder.all(size);
     }

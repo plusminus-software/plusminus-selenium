@@ -89,12 +89,12 @@ public class Finder {
         return by(Findable.byText(htmlTag, text));
     }
 
-    public Finder includingHidden() {
+    public Finder includeHidden() {
         this.visibility = Visibility.ALL;
         return this;
     }
 
-    public Finder onlyHidden() {
+    public Finder hidden() {
         this.visibility = Visibility.HIDDEN;
         return this;
     }
