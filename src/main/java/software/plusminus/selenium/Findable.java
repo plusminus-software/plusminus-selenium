@@ -38,32 +38,32 @@ public interface Findable {
 
     // Find by label
 
-    default Element findByLabel(String label, String selector) {
-        Element labelComponent = find().byText("label", label).displayed().one();
+    default WebElement findByLabel(String label, String selector) {
+        WebElement labelComponent = find().byText("label", label).one();
         return labelComponent.getParent().find(By.cssSelector(selector)).one();
     }
 
-    default List<Element> findByLabel(String label, String selector, int size) {
-        Element labelComponent = find().byText("label", label).displayed().one();
+    default List<WebElement> findByLabel(String label, String selector, int size) {
+        WebElement labelComponent = find().byText("label", label).one();
         return labelComponent.getParent().find(By.cssSelector(selector)).all(size);
     }
 
     // Find all
 
-    default List<Element> findAll(String selector, int size) {
-        return findAll(selector, size, Visibility.ALL);
+    default List<WebElement> findAll(String selector, int size) {
+        return findAll(selector, size, Visibility.DISPLAYED);
     }
 
-    default List<Element> findAll(String selector, int size, Visibility visibility) {
+    default List<WebElement> findAll(String selector, int size, Visibility visibility) {
         return findAll(By.cssSelector(selector), size, visibility);
     }
 
-    default List<Element> findAll(By by, int size, Visibility visibility) {
+    default List<WebElement> findAll(By by, int size, Visibility visibility) {
         Finder finder = find().by(by);
-        if (visibility == Visibility.DISPLAYED) {
-            finder.displayed();
+        if (visibility == Visibility.ALL) {
+            finder.includingHidden();
         } else if (visibility == Visibility.HIDDEN) {
-            finder.hidden();
+            finder.onlyHidden();
         }
         return finder.all(size);
     }

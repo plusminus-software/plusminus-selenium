@@ -23,7 +23,6 @@ import org.openqa.selenium.Point;
 import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.interactions.Actions;
@@ -100,37 +99,27 @@ public class Selenium {
         checkErrorsInLogs();
     }
 
-    public List<Element> findAll(SearchContext context, By by, Range size, Visibility visibility) {
+    public List<WebElement> findAll(SearchContext context, By by, Range size, Visibility visibility) {
         waitForPage();
         waitForElement(context, by, size, visibility);
         waitForElement(context, by, size, visibility);
-        List<WebElement> elements = filterElementsByVisibility(
-                context.findElements(by), visibility);
+        List<WebElement> elements = findElements(context, by, visibility);
         if (!size.between(elements.size())) {
             throw new SeleniumException(getErrorMessage(size, visibility, elements));
         }
-        return elements.stream()
-                .map(element -> Element.of(element, this))
-                .collect(Collectors.toList());
+        return elements;
     }
 
     public void moveToElement(WebElement element) {
-        if (element instanceof Element) {
-            element = ((Element) element).getCanonicalElement();
-        }
         Actions actions = new Actions(driver);
-        actions.moveToElement(element).build().perform();
+        actions.moveToElement(element.getCanonicalElement())
+                .build().perform();
     }
 
     public void dragAndDrop(WebElement from, WebElement to) {
-        if (from instanceof Element) {
-            from = ((Element) from).getCanonicalElement();
-        }
-        if (to instanceof Element) {
-            to = ((Element) to).getCanonicalElement();
-        }
         Actions actions = new Actions(driver);
-        actions.dragAndDrop(from, to).build().perform();
+        actions.dragAndDrop(from.getCanonicalElement(), to.getCanonicalElement())
+                .build().perform();
     }
 
     public void checkErrorsInLogs() {
@@ -184,36 +173,43 @@ public class Selenium {
     public void waitForElement(SearchContext context, By by, Range size, Visibility visibility) {
         try {
             new WebDriverWait(driver, options.timeoutInSeconds()).until(d -> {
-                List<WebElement> elements = context.findElements(by);
-                int actualSize = filterElementsByVisibility(elements, visibility).size();
+                int actualSize = findElements(context, by, visibility).size();
                 return size.between(actualSize);
             });
         } catch (TimeoutException e) {
-            List<WebElement> elements = context.findElements(by);
+            List<WebElement> elements = findElements(context, by, Visibility.ALL);
             throw new TimeoutException(getErrorMessage(size, visibility, elements), e);
         }
     }
+    
+    private List<WebElement> findElements(SearchContext context, By by, Visibility visibility) {
+        return context.findElements(by).stream()
+                .map(e -> WebElement.of(e, this))
+                .filter(e -> filterByVisibility(e, visibility))
+                .collect(Collectors.toList());
+    }
 
-    private List<WebElement> filterElementsByVisibility(
-            List<WebElement> elements, Visibility visibility) {
+    private boolean filterByVisibility(WebElement element, Visibility visibility) {
         if (visibility == Visibility.DISPLAYED) {
-            return elements.stream()
-                    .filter(WebElement::isDisplayed)
-                    .collect(Collectors.toList());
+            return element.isDisplayed();
         } else if (visibility == Visibility.HIDDEN) {
-            return elements.stream()
-                    .filter(e -> !e.isDisplayed())
-                    .collect(Collectors.toList());
+            return element.isDisplayed();
         } else {
-            return elements;
+            return true;
         }
+    }
+    
+    private List<WebElement> filterByVisibility(List<WebElement> elements, Visibility visibility) {
+        return elements.stream()
+                .filter(e -> filterByVisibility(e, visibility))
+                .collect(Collectors.toList());
     }
 
     private String getErrorMessage(Range expectedSize, Visibility visibility,
                                    List<WebElement> elements) {
-        long all = filterElementsByVisibility(elements, Visibility.ALL).size();
-        long displayed = filterElementsByVisibility(elements, Visibility.DISPLAYED).size();
-        long hidden = filterElementsByVisibility(elements, Visibility.HIDDEN).size();
+        long all = filterByVisibility(elements, Visibility.ALL).size();
+        long displayed = filterByVisibility(elements, Visibility.DISPLAYED).size();
+        long hidden = filterByVisibility(elements, Visibility.HIDDEN).size();
         return String.format(TIMEOUT_MESSAGE_PATTERN,
                 expectedSize,
                 visibility == Visibility.ALL ? "" : visibility.toString().toLowerCase(),

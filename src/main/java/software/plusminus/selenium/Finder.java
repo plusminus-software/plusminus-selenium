@@ -30,37 +30,37 @@ public class Finder {
 
     private SearchContext context;
     private By by;
-    private Visibility visibility = Visibility.ALL;
+    private Visibility visibility = Visibility.DISPLAYED;
 
     public Finder(Selenium selenium) {
         this.selenium = selenium;
         this.context = selenium.driver();
     }
 
-    public List<Element> all(int size) {
+    public List<WebElement> all(int size) {
         return all(new Range(size, size));
     }
 
-    public List<Element> all(Range size) {
+    public List<WebElement> all(Range size) {
         if (by == null) {
             throw new SeleniumException("Incorrect 'by' parameter: must be non null");
         }
         return selenium.findAll(context, by, size, visibility);
     }
 
-    public List<Element> min(int minSize) {
+    public List<WebElement> min(int minSize) {
         return all(new Range(minSize, Integer.MAX_VALUE));
     }
 
-    public List<Element> max(int maxSize) {
+    public List<WebElement> max(int maxSize) {
         return all(new Range(0, maxSize));
     }
 
-    public List<Element> atLeastOne() {
+    public List<WebElement> atLeastOne() {
         return min(1);
     }
 
-    public Element one() {
+    public WebElement one() {
         return all(1).get(0);
     }
 
@@ -89,12 +89,12 @@ public class Finder {
         return by(Findable.byText(htmlTag, text));
     }
 
-    public Finder displayed() {
-        this.visibility = Visibility.DISPLAYED;
+    public Finder includingHidden() {
+        this.visibility = Visibility.ALL;
         return this;
     }
 
-    public Finder hidden() {
+    public Finder onlyHidden() {
         this.visibility = Visibility.HIDDEN;
         return this;
     }

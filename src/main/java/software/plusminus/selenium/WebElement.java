@@ -15,15 +15,17 @@
  */
 package software.plusminus.selenium;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Delegate;
-import org.openqa.selenium.WebElement;
 
+@SuppressFBWarnings("NM_SAME_SIMPLE_NAME_AS_INTERFACE")
+@SuppressWarnings("squid:S2176")
 @RequiredArgsConstructor(staticName = "of")
-public class Element implements WebElement, Findable {
+public class WebElement implements org.openqa.selenium.WebElement, Findable {
 
     @Delegate
-    private final WebElement canonical;
+    private final org.openqa.selenium.WebElement canonical;
     private final Selenium selenium;
 
     public Finder find() {
@@ -32,12 +34,12 @@ public class Element implements WebElement, Findable {
         return finder;
     }
 
-    public WebElement getCanonicalElement() {
+    public org.openqa.selenium.WebElement getCanonicalElement() {
         return canonical;
     }
 
-    public Element getParent() {
-        return Element.of(findElement(Findable.byParent()), selenium);
+    public WebElement getParent() {
+        return WebElement.of(findElement(Findable.byParent()), selenium);
     }
 
     public String getValue() {
