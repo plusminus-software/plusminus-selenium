@@ -38,5 +38,6 @@ public class WebTestOptions {
     private String protocol = "http";
     private String host = "localhost";
     private int port;
+    private boolean allowMultipleBrowsersOpened = false;
 
 }

@@ -49,17 +49,18 @@ public class Selenium {
     
     private WebDriver driver;
     private WebTestOptions options;
-    
-    public void openBrowser() {
-        WebDriverManager.chromedriver().setup();
-        driver = new ChromeDriver();
-    }
-    
-    public void openHeadlessBrowser() {
+
+    @SuppressWarnings("HiddenField")
+    public void openBrowser(WebTestOptions options) {
+        if (!options.allowMultipleBrowsersOpened() && isBrowserOpened()) {
+            return;
+        }
         WebDriverManager.chromedriver().setup();
         ChromeOptions chromeOptions = new ChromeOptions();
-        chromeOptions.addArguments("--headless", "--disable-gpu", "--window-size=1920,1200",
-                "--ignore-certificate-errors", "--silent");
+        if (options.headlessBrowser()) {
+            chromeOptions.addArguments("--headless", "--disable-gpu", "--window-size=1920,1200",
+                    "--ignore-certificate-errors", "--silent");    
+        }
         driver = new ChromeDriver(chromeOptions);
     }
     
@@ -67,6 +68,13 @@ public class Selenium {
         driver.quit();
     }
 
+    public boolean isBrowserOpened() {
+        if (driver == null) {
+            return false;
+        }
+        return !driver.toString().contains("null");
+    }
+    
     public WebDriver driver() {
         return driver;
     }
