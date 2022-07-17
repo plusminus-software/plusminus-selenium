@@ -140,6 +140,10 @@ public class Selenium {
         return String.format("%s://%s:%s%s",
                 options.protocol(), options.host(), options.port(), path);
     }
+    
+    public void go(String path) {
+        driver.get(buildUrl(path));
+    }
 
     public void desktopWindow() {
         WebDriver.Window window = driver.manage().window();
