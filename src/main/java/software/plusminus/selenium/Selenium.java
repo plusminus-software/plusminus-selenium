@@ -54,7 +54,11 @@ public class Selenium {
         if (!options.allowMultipleBrowsersOpened() && isBrowserOpened()) {
             return;
         }
-        WebDriverManager.chromedriver().setup();
+        try {
+            WebDriverManager.chromedriver().setup();
+        } catch (Exception e) {
+            WebDriverManager.chromedriver().clearDriverCache().setup();
+        }
         ChromeOptions chromeOptions = new ChromeOptions();
         if (options.headlessBrowser()) {
             chromeOptions.addArguments("--headless", "--disable-gpu", "--window-size=1920,1200",
